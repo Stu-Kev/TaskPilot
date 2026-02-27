@@ -166,35 +166,33 @@ const Calendar = {
     this.attachEventListeners();
   },
 
-  // Render day indicators (color dots and theater marker for events starting on this date)
+  // Render day indicators (shows indicators for ALL days of multi-day events)
   renderDayIndicators(events, dateStr) {
     if (events.length === 0) return '';
 
     let html = '<div class="day-indicators">';
 
-    // For multi-day events, only show indicator on the start date
-    // Get unique events that start on this date
-    const startDateEvents = events.filter(e => e.date === dateStr);
-    
-    // Render color indicators - show one for each event starting on this date (max 5 to leave room for theater marker)
-    const eventsToShow = startDateEvents.slice(0, 5);
+    // Show indicators for ALL events on this date (not just start date)
+    // This ensures multi-day events are visible on all their days
+    const eventsToShow = events.slice(0, 5);
     eventsToShow.forEach(event => {
       const isMultiDay = event.endDate && event.endDate !== event.date;
+      const isStartDate = event.date === dateStr;
       const title = isMultiDay 
-        ? `${event.description || 'Event'} (${this.formatShortDate(event.date)} - ${this.formatShortDate(event.endDate)})`
+        ? `${event.description || 'Event'} (${this.formatShortDate(event.date)} - ${this.formatShortDate(event.endDate)})${isStartDate ? ' (Start)' : ' (Continuing)'}`
         : (event.description || 'Event');
       html += `<span class="color-indicator" style="background-color: ${event.categoryColor}" title="${title}"></span>`;
     });
 
-    // Show theater marker for events starting on this date that have theater reservation
-    const theaterEvents = startDateEvents.filter(e => e.hasTheaterReservation);
+    // Show theater marker for events on this date that have theater reservation
+    const theaterEvents = events.filter(e => e.hasTheaterReservation);
     if (theaterEvents.length > 0) {
       html += '<span class="theater-marker" title="Theater Reservation">G</span>';
     }
 
-    // Show "+" indicator if there are more events starting on this date
-    if (startDateEvents.length > 5) {
-      html += `<span class="more-events" title="${startDateEvents.length - 5} more events">+${startDateEvents.length - 5}</span>`;
+    // Show "+" indicator if there are more events on this date
+    if (events.length > 5) {
+      html += `<span class="more-events" title="${events.length - 5} more events">+${events.length - 5}</span>`;
     }
 
     html += '</div>';

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TaskPilot - A lightweight personal web application for logging, categorizing, and reviewing events and plans">
+  <meta name="theme-color" content="#2c3e50">
+  <title>TaskPilot - Personal Event Planner</title>
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Dexie.js for IndexedDB -->
+  <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>TaskPilot</h1>
+        <span>Personal Event Planner</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div id="nav-calendar" class="nav-item active">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span>Calendar</span>
+        </div>
+        <div id="nav-notes" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>Notes</span>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Calendar Container -->
+      <div id="calendar-container">
+        <!-- Calendar will be rendered here by JavaScript -->
+      </div>
+
+      <!-- Notes Container -->
+      <div id="notes-container">
+        <div class="notes-header">
+          <h2>My Notes</h2>
+          <button class="create-note-btn" onclick="NotesManager.createNote()">+ New Note</button>
+        </div>
+        
+        <!-- Note Editor -->
+        <div class="note-editor">
+          <textarea id="note-content" placeholder="Write your note here..."></textarea>
+          <div class="note-editor-actions">
+            <button id="save-note-btn" class="save-note-btn" onclick="NotesManager.saveNote()">Save Note</button>
+            <button id="update-note-btn" class="update-note-btn" onclick="NotesManager.updateNote()">Update Note</button>
+          </div>
+        </div>
+
+        <!-- Notes List -->
+        <div id="notes-list" class="notes-list">
+          <!-- Notes will be rendered here by JavaScript -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Event Panel Overlay -->
+  <div id="panel-overlay" class="panel-overlay" onclick="EventManager.hidePanel()"></div>
+
+  <!-- Event Panel -->
+  <div id="event-panel" class="event-panel">
+    <div class="event-panel-header">
+      <h3 id="selected-date-display">Select a Date</h3>
+      <button id="close-event-panel" class="close-panel-btn" onclick="EventManager.hidePanel()">&times;</button>
+    </div>
+    <div class="event-panel-content">
+      <!-- Events List -->
+      <div id="events-list" class="events-list">
+        <!-- Events will be rendered here -->
+      </div>
+
+      <!-- Event Form -->
+      <div id="event-form-container" class="event-form-container">
+        <form id="event-form">
+          <input type="hidden" id="event-date">
+          
+          <h4>Add/Edit Event</h4>
+          
+          <div class="form-group">
+            <label for="event-description">Description</label>
+            <input type="text" id="event-description" placeholder="Event description">
+          </div>
+          
+          <div class="form-group">
+            <label for="event-color">Category Color</label>
+            <select id="event-color" class="color-select">
+              <option value="#000000">AH Club bookings (Black)</option>
+              <option value="#3498db">Theater (Blue)</option>
+              <option value="#2ecc71">Personal (Green)</option>
+              <option value="#e74c3c">AH Activities, Meetings (Red)</option>
+              <option value="#9b59b6">Other (Purple)</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="event-end-date">End Date (optional for multi-day events)</label>
+            <input type="date" id="event-end-date">
+          </div>
+          
+          <div class="form-group checkbox-group">
+            <input type="checkbox" id="event-theater">
+            <label for="event-theater">Theater Reservation (G)</label>
+          </div>
+          
+          <div class="form-group">
+            <label for="event-notes">Notes</label>
+            <textarea id="event-notes" placeholder="Add notes for this event..."></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" id="event-submit-btn" class="submit-btn">Add Event</button>
+            <button type="button" id="delete-event-btn" class="delete-btn" style="display: none;">Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/db.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/notes.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    // Handle panel open/close for overlay
+    document.addEventListener('DOMContentLoaded', function() {
+      const eventPanel = document.getElementById('event-panel');
+      const overlay = document.getElementById('panel-overlay');
+      
+      // MutationObserver to watch for panel class changes
+      if (eventPanel && overlay) {
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+              if (eventPanel.classList.contains('active')) {
+                overlay.classList.add('active');
+              } else {
+                overlay.classList.remove('active');
+              }
+            }
+          });
+        });
+        observer.observe(eventPanel, { attributes: true });
+      }
+    });
+  </script>
+</body>
+</html>

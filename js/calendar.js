@@ -6,6 +6,27 @@ const Calendar = {
   selectedDate: null,
   events: [],
 
+  // Club configuration with indicators
+  clubs: [
+    { indicator: 'C', name: 'De la Salle Chorale' },
+    { indicator: 'V', name: 'Vivace' },
+    { indicator: 'M', name: 'Musikat' },
+    { indicator: 'P', name: 'PSG' },
+    { indicator: 'T', name: 'Maskara' },
+    { indicator: 'J', name: 'JBDC' },
+    { indicator: 'G', name: 'GLYF' },
+    { indicator: 'R', name: 'Ritmo Verde' },
+    { indicator: 'S', name: 'Santermo' },
+    { indicator: 'L', name: 'LFS' },
+    { indicator: 'I', name: 'IWAG' }
+  ],
+
+  // Get club name by indicator
+  getClubName(indicator) {
+    const club = this.clubs.find(c => c.indicator === indicator);
+    return club ? club.name : '';
+  },
+
   // Initialize calendar
   init() {
     this.currentMonth = this.currentDate.getMonth();
@@ -118,24 +139,27 @@ const Calendar = {
     // Load events
     this.events = await EventDB.getAll();
 
-    let html = `
-      <div class="calendar-header">
-        <button id="prev-month" class="calendar-nav-btn"><</button>
-        <h2 id="calendar-title">${monthName} ${this.currentYear}</h2>
-        <button id="next-month" class="calendar-nav-btn">></button>
-      </div>
-      <button id="today-btn" class="today-btn">Today</button>
-      <div class="calendar-weekdays">
-        <div>Sun</div>
-        <div>Mon</div>
-        <div>Tue</div>
-        <div>Wed</div>
-        <div>Thu</div>
-        <div>Fri</div>
-        <div>Sat</div>
-      </div>
-      <div class="calendar-days">
-    `;
+let html = `
+  <div class="calendar-header">
+    <button id="prev-month" class="calendar-nav-btn"><</button>
+    <h2 id="calendar-title">${monthName} ${this.currentYear}</h2>
+    <button id="next-month" class="calendar-nav-btn">></button>
+  </div>
+
+  <button id="today-btn" class="today-btn">Today</button>
+
+  <div class="calendar-weekdays">
+    <div>Sun</div>
+    <div>Mon</div>
+    <div>Tue</div>
+    <div>Wed</div>
+    <div>Thu</div>
+    <div>Fri</div>
+    <div>Sat</div>
+  </div>
+
+  <div class="calendar-days">
+`;
 
     // Empty cells for days before first day of month
     for (let i = 0; i < firstDay; i++) {
@@ -174,7 +198,7 @@ const Calendar = {
 
     // Show indicators for ALL events on this date (not just start date)
     // This ensures multi-day events are visible on all their days
-    const eventsToShow = events.slice(0, 5);
+    const eventsToShow = events.slice(0, 4); // Reduced to 4 to leave room for club indicator
     eventsToShow.forEach(event => {
       const isMultiDay = event.endDate && event.endDate !== event.date;
       const isStartDate = event.date === dateStr;
@@ -184,6 +208,14 @@ const Calendar = {
       html += `<span class="color-indicator" style="background-color: ${event.categoryColor}" title="${title}"></span>`;
     });
 
+    // Show club indicator for events on this date that have a club
+    const clubEvents = events.filter(e => e.club);
+    if (clubEvents.length > 0) {
+      // Show the first club indicator
+      const club = clubEvents[0];
+      html += `<span class="club-indicator" title="${this.getClubName(club.club)} (Club)">${club.club}</span>`;
+    }
+
     // Show theater marker for events on this date that have theater reservation
     const theaterEvents = events.filter(e => e.hasTheaterReservation);
     if (theaterEvents.length > 0) {
@@ -191,8 +223,8 @@ const Calendar = {
     }
 
     // Show "+" indicator if there are more events on this date
-    if (events.length > 5) {
-      html += `<span class="more-events" title="${events.length - 5} more events">+${events.length - 5}</span>`;
+    if (events.length > 4) {
+      html += `<span class="more-events" title="${events.length - 4} more events">+${events.length - 4}</span>`;
     }
 
     html += '</div>';

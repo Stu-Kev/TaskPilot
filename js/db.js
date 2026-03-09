@@ -1,9 +1,9 @@
 // IndexedDB Layer using Dexie.js
 const db = new Dexie('TaskPilotDB');
 
-// Define database schema
+// Define database schema - updated to include club field
 db.version(1).stores({
-  events: '++id, date, endDate, description, categoryColor, hasTheaterReservation, eventNotes, createdTimestamp, updatedTimestamp',
+  events: '++id, date, endDate, description, categoryColor, club, hasTheaterReservation, eventNotes, createdTimestamp, updatedTimestamp',
   notes: '++id, content, createdDate, lastModifiedDate'
 });
 
@@ -17,6 +17,7 @@ const EventDB = {
       endDate: eventData.endDate || null,
       description: eventData.description || '',
       categoryColor: eventData.categoryColor || '#3498db',
+      club: eventData.club || null,
       hasTheaterReservation: eventData.hasTheaterReservation || false,
       eventNotes: eventData.eventNotes || '',
       createdTimestamp: now,

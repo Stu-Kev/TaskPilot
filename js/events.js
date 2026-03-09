@@ -3,6 +3,21 @@ const EventManager = {
   currentEventId: null,
   isEditing: false,
 
+  // Club configuration with indicators
+  clubs: [
+    { indicator: 'C', name: 'De la Salle Chorale' },
+    { indicator: 'V', name: 'Vivace' },
+    { indicator: 'M', name: 'Musikat' },
+    { indicator: 'P', name: 'PSG' },
+    { indicator: 'T', name: 'Maskara' },
+    { indicator: 'J', name: 'JBDC' },
+    { indicator: 'G', name: 'GLYF' },
+    { indicator: 'R', name: 'Ritmo Verde' },
+    { indicator: 'S', name: 'Santermo' },
+    { indicator: 'L', name: 'LFS' },
+    { indicator: 'I', name: 'IWAG' }
+  ],
+
   // Category colors configuration
   categories: [
     { color: '#000000', name: 'AH Club bookings', label: 'AH Club bookings (Black)' },
@@ -11,6 +26,12 @@ const EventManager = {
     { color: '#e74c3c', name: 'AH Activities, Meetings', label: 'AH Activities, Meetings (Red)' },
     { color: '#9b59b6', name: 'Other', label: 'Other (Purple)' }
   ],
+
+  // Get club name by indicator
+  getClubName(indicator) {
+    const club = this.clubs.find(c => c.indicator === indicator);
+    return club ? club.name : '';
+  },
 
   // Show event panel for a specific date
   async showPanel(dateStr) {
@@ -53,39 +74,59 @@ const EventManager = {
   },
 
   // Render event list
-  renderEventList(events, dateStr) {
-    const eventList = document.getElementById('events-list');
-    if (!eventList) return;
+renderEventList(events, dateStr) {
+  const eventList = document.getElementById('events-list');
+  if (!eventList) return;
 
-    if (events.length === 0) {
-      eventList.innerHTML = '<p class="no-events">No events for this date</p>';
-      return;
-    }
+  if (events.length === 0) {
+    eventList.innerHTML = '<p class="no-events">No events for this date</p>';
+    return;
+  }
 
-    let html = '';
-    events.forEach(event => {
-      const dateRange = event.endDate && event.endDate !== event.date 
-        ? `<span class="event-date-range"> (${this.formatShortDate(event.date)} - ${this.formatShortDate(event.endDate)})</span>` 
+  let html = '';
+
+  events.forEach(event => {
+
+    const dateRange =
+      event.endDate && event.endDate !== event.date
+        ? `<span class="event-date-range"> (${this.formatShortDate(event.date)} - ${this.formatShortDate(event.endDate)})</span>`
         : '';
-      
-      html += `
-        <div class="event-item" data-id="${event.id}">
-          <div class="event-color" style="background-color: ${event.categoryColor}"></div>
-          <div class="event-details">
-            <div class="event-description">${this.escapeHtml(event.description) || 'Untitled Event'}</div>
-            ${dateRange}
-            ${event.hasTheaterReservation ? '<span class="theater-badge">🎭 G</span>' : ''}
-            ${event.eventNotes ? `<div class="event-notes-preview">${this.escapeHtml(event.eventNotes)}</div>` : ''}
+
+    const clubIndicator =
+      event.club
+        ? `<span class="club-badge" title="${this.getClubName(event.club)}">${event.club}</span>`
+        : '';
+
+    html += `
+      <div class="event-item" data-id="${event.id}">
+        <div class="event-color" style="background-color: ${event.categoryColor}"></div>
+
+        <div class="event-details">
+          <div class="event-description">
+            ${this.escapeHtml(event.description) || 'Untitled Event'}
           </div>
-          <div class="event-actions">
-            <button class="edit-event-btn" onclick="EventManager.editEvent(${event.id})">Edit</button>
-            <button class="delete-event-btn" onclick="EventManager.deleteEvent(${event.id})">Delete</button>
-          </div>
+
+          ${dateRange}
+          ${clubIndicator}
+          ${event.hasTheaterReservation ? '<span class="theater-badge">🎭 G</span>' : ''}
+
+          ${
+            event.eventNotes
+              ? `<div class="event-notes-preview">${this.escapeHtml(event.eventNotes)}</div>`
+              : ''
+          }
         </div>
-      `;
-    });
-    eventList.innerHTML = html;
-  },
+
+        <div class="event-actions">
+          <button class="edit-event-btn" onclick="EventManager.editEvent(${event.id})">Edit</button>
+          <button class="delete-event-btn" onclick="EventManager.deleteEvent(${event.id})">Delete</button>
+        </div>
+      </div>
+    `;
+  });
+
+  eventList.innerHTML = html;
+},
 
   // Format short date
   formatShortDate(dateStr) {
@@ -118,6 +159,12 @@ const EventManager = {
       colorInput.value = this.categories[0].color;
     }
 
+    // Clear club selection
+    const clubInput = document.getElementById('event-club');
+    if (clubInput) {
+      clubInput.value = '';
+    }
+
     // Clear end date
     const endDateInput = document.getElementById('event-end-date');
     if (endDateInput) {
@@ -148,6 +195,7 @@ const EventManager = {
     // Populate form
     document.getElementById('event-description').value = event.description || '';
     document.getElementById('event-color').value = event.categoryColor || '#000000';
+    document.getElementById('event-club').value = event.club || '';
     document.getElementById('event-theater').checked = event.hasTheaterReservation || false;
     document.getElementById('event-notes').value = event.eventNotes || '';
     document.getElementById('event-end-date').value = event.endDate || '';
@@ -227,6 +275,7 @@ const EventManager = {
 
     const description = document.getElementById('event-description').value.trim();
     const color = document.getElementById('event-color').value;
+    const club = document.getElementById('event-club').value;
     const hasTheater = document.getElementById('event-theater').checked;
     const notes = document.getElementById('event-notes').value.trim();
     const dateStr = document.getElementById('event-date').value;
@@ -248,6 +297,7 @@ const EventManager = {
       endDate: endDateStr || null,
       description: description,
       categoryColor: color,
+      club: club || null,
       hasTheaterReservation: hasTheater,
       eventNotes: notes
     };

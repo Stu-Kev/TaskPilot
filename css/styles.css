@@ -107,6 +107,7 @@ html, body {
 .main-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px;
   position: relative;
 }
@@ -182,6 +183,8 @@ html, body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
+  width: 100%;
+  overflow-x: auto;
 }
 
 .calendar-day {
@@ -256,6 +259,50 @@ html, body {
   font-weight: bold;
 }
 
+/* Club Indicator */
+.club-indicator {
+  background-color: var(--primary);
+  color: white;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+.club-badge {
+  display: inline-block;
+  background-color: var(--primary);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.more-events {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--text-light);
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+.event-date-range {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-left: 4px;
+}
+
 /* Event Panel */
 .event-panel {
   position: fixed;
@@ -314,16 +361,19 @@ html, body {
 /* Event List */
 .events-list {
   margin-bottom: 20px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 5px;
 }
 
 .event-item {
   display: flex;
   align-items: flex-start;
-  padding: 12px;
+  padding: 10px;
   background-color: var(--background);
   border-radius: 8px;
-  margin-bottom: 10px;
-  gap: 10px;
+  margin-bottom: 8px;
+  gap: 8px;
 }
 
 .event-color {
@@ -447,7 +497,7 @@ html, body {
   min-height: 80px;
 }
 
-.color-select {
+.color-select, .club-select {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--border-color);

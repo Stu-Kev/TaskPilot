@@ -44,6 +44,14 @@
           </svg>
           <span>Notes</span>
         </div>
+        <div id="nav-tasks" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          <span>Tasks</span>
+          <span id="task-count-badge" class="nav-badge">0</span>
+        </div>
       </nav>
     </aside>
 
@@ -73,6 +81,25 @@
         <!-- Notes List -->
         <div id="notes-list" class="notes-list">
           <!-- Notes will be rendered here by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Tasks Container -->
+      <div id="tasks-container">
+        <div class="tasks-header">
+          <h2>My Tasks</h2>
+          <button class="create-task-btn" onclick="TasksManager.createTask()">+ New Task</button>
+        </div>
+        
+        <!-- Task Form -->
+        <div class="task-form">
+          <input type="text" id="task-input" placeholder="Enter your task...">
+          <button id="add-task-btn" class="add-task-btn" onclick="TasksManager.addTask()">Add Task</button>
+        </div>
+
+        <!-- Tasks List -->
+        <div id="tasks-list" class="tasks-list">
+          <!-- Tasks will be rendered here by JavaScript -->
         </div>
       </div>
     </main>
@@ -163,6 +190,7 @@
   <script src="js/calendar.js"></script>
   <script src="js/events.js"></script>
   <script src="js/notes.js"></script>
+  <script src="js/tasks.js"></script>
   <script src="js/app.js"></script>
 
   <!-- Service Worker Registration -->

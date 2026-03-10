@@ -17,12 +17,16 @@ const App = {
     Calendar.init();
     EventManager.init();
     NotesManager.init();
+    TasksManager.init();
 
     // Setup navigation
     this.setupNavigation();
 
     // Setup PWA
     this.setupPWA();
+
+    // Update initial task count
+    TasksManager.updateTaskCount();
 
     console.log('TaskPilot initialized successfully');
   },
@@ -31,6 +35,7 @@ const App = {
   setupNavigation() {
     const navCalendar = document.getElementById('nav-calendar');
     const navNotes = document.getElementById('nav-notes');
+    const navTasks = document.getElementById('nav-tasks');
 
     if (navCalendar) {
       navCalendar.addEventListener('click', () => {
@@ -43,6 +48,12 @@ const App = {
         this.switchView('notes');
       });
     }
+
+    if (navTasks) {
+      navTasks.addEventListener('click', () => {
+        this.switchView('tasks');
+      });
+    }
   },
 
   // Switch between views
@@ -52,15 +63,23 @@ const App = {
     // Update nav active state
     const navCalendar = document.getElementById('nav-calendar');
     const navNotes = document.getElementById('nav-notes');
+    const navTasks = document.getElementById('nav-tasks');
 
     if (view === 'calendar') {
       if (navCalendar) navCalendar.classList.add('active');
       if (navNotes) navNotes.classList.remove('active');
+      if (navTasks) navTasks.classList.remove('active');
       NotesManager.showCalendarView();
-    } else {
+    } else if (view === 'notes') {
       if (navCalendar) navCalendar.classList.remove('active');
       if (navNotes) navNotes.classList.add('active');
+      if (navTasks) navTasks.classList.remove('active');
       NotesManager.showNotesView();
+    } else if (view === 'tasks') {
+      if (navCalendar) navCalendar.classList.remove('active');
+      if (navNotes) navNotes.classList.remove('active');
+      if (navTasks) navTasks.classList.add('active');
+      TasksManager.showTasksView();
     }
   },
 

@@ -1,10 +1,11 @@
 // IndexedDB Layer using Dexie.js
 const db = new Dexie('TaskPilotDB');
 
-// Define database schema - updated to include club field
+// Define database schema - updated to include club field and tasks
 db.version(1).stores({
   events: '++id, date, endDate, description, categoryColor, club, hasTheaterReservation, eventNotes, createdTimestamp, updatedTimestamp',
-  notes: '++id, content, createdDate, lastModifiedDate'
+  notes: '++id, content, createdDate, lastModifiedDate',
+  tasks: '++id, title, completed, createdDate'
 });
 
 // Event CRUD operations
@@ -119,6 +120,60 @@ const NoteDB = {
   }
 };
 
+// Task CRUD operations
+const TaskDB = {
+  // Create a new task
+  async create(title) {
+    const now = Date.now();
+    const task = {
+      title: title || '',
+      completed: false,
+      createdDate: now
+    };
+    return await db.tasks.add(task);
+  },
+
+  // Get all tasks
+  async getAll() {
+    return await db.tasks.toArray();
+  },
+
+  // Get task by ID
+  async getById(id) {
+    return await db.tasks.get(id);
+  },
+
+  // Update task
+  async update(id, updates) {
+    return await db.tasks.update(id, updates);
+  },
+
+  // Toggle task completed status
+  async toggleComplete(id) {
+    const task = await db.tasks.get(id);
+    if (task) {
+      return await db.tasks.update(id, { completed: !task.completed });
+    }
+  },
+
+  // Delete task
+  async delete(id) {
+    return await db.tasks.delete(id);
+  },
+
+  // Get active (incomplete) tasks count
+  async getActiveCount() {
+    const allTasks = await db.tasks.toArray();
+    return allTasks.filter(task => !task.completed).length;
+  },
+
+  // Get all tasks sorted by date (newest first)
+  async getAllSorted() {
+    return await db.tasks.orderBy('createdDate').reverse().toArray();
+  }
+};
+
 // Export for use in other modules
 window.EventDB = EventDB;
 window.NoteDB = NoteDB;
+window.TaskDB = TaskDB;

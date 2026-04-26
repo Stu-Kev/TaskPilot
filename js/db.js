@@ -1,11 +1,23 @@
 // IndexedDB Layer using Dexie.js
 const db = new Dexie('TaskPilotDB');
 
-// Define database schema - updated to include club field and tasks
+// Define database schema v1 (original)
 db.version(1).stores({
   events: '++id, date, endDate, description, categoryColor, club, hasTheaterReservation, eventNotes, createdTimestamp, updatedTimestamp',
   notes: '++id, content, createdDate, lastModifiedDate',
   tasks: '++id, title, completed, createdDate'
+});
+
+// v2: Add attire, location for club bookings
+db.version(2).stores({
+  events: '++id, date, endDate, description, categoryColor, club, hasTheaterReservation, eventNotes, attire, location, createdTimestamp, updatedTimestamp',
+  notes: '++id, content, createdDate, lastModifiedDate',
+  tasks: '++id, title, completed, createdDate'
+});
+
+// 🔥 FORCE OPEN DATABASE
+db.open().catch(err => {
+  console.error('DB OPEN FAILED:', err);
 });
 
 // Event CRUD operations
@@ -21,6 +33,8 @@ const EventDB = {
       club: eventData.club || null,
       hasTheaterReservation: eventData.hasTheaterReservation || false,
       eventNotes: eventData.eventNotes || '',
+      attire: eventData.attire || '',
+      location: eventData.location || '',
       createdTimestamp: now,
       updatedTimestamp: now
     };
@@ -55,6 +69,18 @@ const EventDB = {
     return await db.events.update(id, updates);
   },
 
+  // Helper to display event with new fields
+  async getFormatted(id) {
+    const event = await this.getById(id);
+    if (event) {
+      return {
+        ...event,
+       displayInfo: `${event.attire ? `Attire: ${event.attire}\n` : ''}${event.location ? `Location: ${event.location}` : ''}`.trim()
+      };
+    }
+    return null;
+  },
+
   // Delete event
   async delete(id) {
     return await db.events.delete(id);
@@ -72,11 +98,20 @@ const EventDB = {
     });
   },
 
+
   // Get all events sorted by date
   async getAllSorted() {
     return await db.events.orderBy('date').toArray();
+  },
+
+  // Get events by club
+  async getByClub(clubIndicator) {
+    const allEvents = await db.events.toArray();
+    return allEvents.filter(event => event.club === clubIndicator);
   }
 };
+
+
 
 // Note CRUD operations
 const NoteDB = {
@@ -173,7 +208,73 @@ const TaskDB = {
   }
 };
 
-// Export for use in other modules
+// v3: Reservation workflow tables
+db.version(3).stores({
+  events: '++id, date, endDate, description, categoryColor, club, hasTheaterReservation, eventNotes, attire, location, createdTimestamp, updatedTimestamp',
+  notes: '++id, content, createdDate, lastModifiedDate',
+  tasks: '++id, title, completed, createdDate',
+  submissions: '++id, type, status, submitterEmail, formData, submittedDate, reviewedDate, reviewerNotes, *type',
+  reservations: '++id, submissionId, status, approvedDate, eventId'
+});
+
+// Submission CRUD
+const SubmissionDB = {
+  async create(formType, submitterEmail, formData) {
+    const now = Date.now();
+    const submission = {
+      type: formType, // 'AHB', 'Studio', 'Gallaga'
+      status: 'pending',
+      submitterEmail,
+      formData, // JSON all fields
+      submittedDate: now,
+      reviewedDate: null,
+      reviewerNotes: ''
+    };
+    return await db.submissions.add(submission);
+  },
+
+  async getPending() {
+    return await db.submissions.where('status').equals('pending').toArray();
+  },
+
+  async getById(id) {
+    return await db.submissions.get(id);
+  },
+
+  async updateStatus(id, status, reviewerNotes = '') {
+    const now = Date.now();
+    return await db.submissions.update(id, {
+      status,
+      reviewedDate: now,
+      reviewerNotes
+    });
+  },
+
+  async getByType(type) {
+    return await db.submissions.where('type').equals(type).toArray();
+  }
+};
+
+// Reservations CRUD
+const ReservationsDB = {
+  async createFromSubmission(submissionId, eventId) {
+    return await db.reservations.add({
+      submissionId,
+      status: 'approved',
+      approvedDate: Date.now(),
+      eventId
+    });
+  },
+
+  async getApproved() {
+    return await db.reservations.where('status').equals('approved').toArray();
+  }
+};
+
+// Export all
 window.EventDB = EventDB;
 window.NoteDB = NoteDB;
 window.TaskDB = TaskDB;
+window.SubmissionDB = SubmissionDB;
+window.ReservationsDB = ReservationsDB;
+

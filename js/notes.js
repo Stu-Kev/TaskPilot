@@ -5,7 +5,7 @@ const NotesManager = {
 
   // Show notes view
   async showNotesView() {
-    const notesContainer = document.getElementById('notes-container');
+    const container = document.getElementById('notes-list');
     const calendarContainer = document.getElementById('calendar-container');
     
     if (calendarContainer) {
@@ -229,9 +229,9 @@ const NotesManager = {
   },
 
   // Initialize notes
-  init() {
-    // These are initialized by app.js after DOM is ready
-  }
+  async init() {
+    await this.loadNotes();
+  },
 };
 
 // Export for use in other modules

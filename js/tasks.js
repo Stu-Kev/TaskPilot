@@ -182,16 +182,18 @@ const TasksManager = {
   },
 
   // Initialize tasks
-  init() {
-    // Handle Enter key in task input
-    const taskInput = document.getElementById('task-input');
-    if (taskInput) {
-      taskInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          this.addTask();
-        }
-      });
-    }
+  async init() {
+  const taskInput = document.getElementById('task-input');
+  if (taskInput) {
+    taskInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        this.addTask();
+      }
+    });
+  }
+
+  // 🔥 THIS LINE FIXES YOUR BUG
+    await this.loadTasks();
   }
 };
 

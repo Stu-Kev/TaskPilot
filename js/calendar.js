@@ -137,7 +137,12 @@ const Calendar = {
     const today = this.formatDate(new Date());
 
     // Load events
-    this.events = await EventDB.getAll();
+    try {
+  this.events = await EventDB.getAll();
+} catch (error) {
+  console.error('Calendar failed to load events:', error);
+  this.events = []; // prevent crash
+};
 
 let html = `
   <div class="calendar-header">

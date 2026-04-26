@@ -8,9 +8,15 @@ const ASSETS_TO_CACHE = [
   '/js/db.js',
   '/js/calendar.js',
   '/js/events.js',
+
   '/js/notes.js',
   '/js/tasks.js',
+  '/js/bookings.js',
+  '/js/submissions.js',
+  '/js/forms.js',
+  '/js/admin.js',
   '/manifest.json',
+
   'https://unpkg.com/dexie/dist/dexie.js'
 ];
 

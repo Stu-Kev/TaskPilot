@@ -16,10 +16,6 @@ db.version(2).stores({
 });
 
 // 🔥 FORCE OPEN DATABASE
-db.open().catch(err => {
-  console.error('DB OPEN FAILED:', err);
-});
-
 // Event CRUD operations
 const EventDB = {
   // Create a new event
@@ -215,6 +211,19 @@ db.version(3).stores({
   tasks: '++id, title, completed, createdDate',
   submissions: '++id, type, status, submitterEmail, formData, submittedDate, reviewedDate, reviewerNotes, *type',
   reservations: '++id, submissionId, status, approvedDate, eventId'
+});
+
+// v4: Clean submission/reservation indexes for reservation workflow
+db.version(4).stores({
+  events: '++id, date, endDate, description, categoryColor, club, hasTheaterReservation, eventNotes, attire, location, createdTimestamp, updatedTimestamp',
+  notes: '++id, content, createdDate, lastModifiedDate',
+  tasks: '++id, title, completed, createdDate',
+  submissions: '++id, type, status, submitterEmail, submittedDate, reviewedDate',
+  reservations: '++id, submissionId, status, approvedDate, eventId'
+});
+
+db.open().catch(err => {
+  console.error('DB OPEN FAILED:', err);
 });
 
 // Submission CRUD

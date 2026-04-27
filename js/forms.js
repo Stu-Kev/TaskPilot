@@ -68,7 +68,7 @@ const FormsManager = {
       alert(`${formType} submitted successfully! Awaiting admin approval.`);
       e.target.reset();
     } catch (error) {
-      alert('Submission failed. Try again.');
+      alert(`Submission failed: ${error.message || 'Try again.'}`);
       console.error(error);
     }
   }

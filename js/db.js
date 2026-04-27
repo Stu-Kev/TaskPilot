@@ -204,17 +204,8 @@ const TaskDB = {
   }
 };
 
-// v3: Reservation workflow tables
-db.version(3).stores({
-  events: '++id, date, endDate, description, categoryColor, club, hasTheaterReservation, eventNotes, attire, location, createdTimestamp, updatedTimestamp',
-  notes: '++id, content, createdDate, lastModifiedDate',
-  tasks: '++id, title, completed, createdDate',
-  submissions: '++id, type, status, submitterEmail, formData, submittedDate, reviewedDate, reviewerNotes, *type',
-  reservations: '++id, submissionId, status, approvedDate, eventId'
-});
-
-// v4: Clean submission/reservation indexes for reservation workflow
-db.version(4).stores({
+// v5: Reservation workflow tables
+db.version(5).stores({
   events: '++id, date, endDate, description, categoryColor, club, hasTheaterReservation, eventNotes, attire, location, createdTimestamp, updatedTimestamp',
   notes: '++id, content, createdDate, lastModifiedDate',
   tasks: '++id, title, completed, createdDate',

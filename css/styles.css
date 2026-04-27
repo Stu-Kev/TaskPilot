@@ -1458,12 +1458,16 @@ html, body {
 
 .public-forms-mode .app-container {
   display: block !important;
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
 }
 
 .public-forms-mode .main-content {
   max-width: 960px;
   margin: 0 auto;
   padding: 40px 20px 60px;
+  overflow: visible;
 }
 
 .public-forms-mode #forms-container {

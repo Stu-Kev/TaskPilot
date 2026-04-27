@@ -1475,26 +1475,25 @@ html, body {
 }
 
 .public-forms-mode .forms-tabs {
-  margin-bottom: 30px;
+  display: none;
 }
 
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
+.public-forms-mode .form-panel {
+  display: none;
+}
+
+.public-forms-mode .form-panel.active {
+  display: block;
+}
   
-  .forms-tabs {
-    flex-direction: column;
-  }
-  
-  .admin-table {
+.admin-table {
     font-size: 13px;
-  }
+}
   
   .admin-table th,
   .admin-table td {
     padding: 8px 10px;
-  }
+}
 
   .public-forms-mode .main-content {
     padding: 20px 12px 40px;
